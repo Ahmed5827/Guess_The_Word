@@ -1,9 +1,18 @@
 import { useState, useEffect } from "react";
 import getrandom_word from "../../services/Back-end-call"; // Make sure this import path is correct
+import "./Home.css"
+import LetterCircle from "../Circle/LetterCircle";
+
 const Home = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [responseReceived, setResponseReceived] = useState(false); // New state to track if response is received
+  const [selectedWord, setSelectedWord] = useState("");
+  const letters = ["A", "J", "N", "B", "T", "P", "C", "K", "U", "Y"];
+
+  const handleWordChange = (newWord) => {
+    setSelectedWord(newWord);
+  };
 
   useEffect(() => {
     let isMounted = true; // Track if the component is mounted
@@ -39,13 +48,27 @@ const Home = () => {
   const { word, meanings } = data;
 
   return (
-    <div>
-      <h1>Word: {word}</h1>
-      <ul>
-        {meanings.map((meaning, index) => (
-          <li key={index}>{meaning.definition}</li>
-        ))}
-      </ul>
+    <div className="containerr">
+      <div><h2>Guess the Word</h2></div>
+      <div className="word_information">
+        <div>Definition</div>
+        <div>{meanings[0]?.definition}</div>
+        <div></div>
+      </div>
+      <div className="inputs">
+        <div className="giveup">
+          <div>Give up</div>
+          <div><img src="" alt="" /></div>
+        </div>
+        <div className="wheel">
+          <LetterCircle letters={letters} onWordChange={handleWordChange} />
+        </div>
+        <div className="hint">
+          <div>Hint</div>
+          <div><img src="" alt="" /></div>
+        </div>
+        {selectedWord}
+      </div>
     </div>
   );
 };
