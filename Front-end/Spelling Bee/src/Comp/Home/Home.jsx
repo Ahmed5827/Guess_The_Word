@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react";
 import getrandom_word from "../../services/Back-end-call"; // Make sure this import path is correct
 import "./Home.css"
+import LetterCircle from "../Circle/LetterCircle";
 
 const Home = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [responseReceived, setResponseReceived] = useState(false); // New state to track if response is received
+  const [selectedWord, setSelectedWord] = useState("");
+  const letters = ["A", "J", "N", "B", "T", "P", "C", "K", "U", "Y"];
+
+  const handleWordChange = (newWord) => {
+    setSelectedWord(newWord);
+  };
 
   useEffect(() => {
     let isMounted = true; // Track if the component is mounted
@@ -54,13 +61,13 @@ const Home = () => {
           <div><img src="" alt="" /></div>
         </div>
         <div className="wheel">
-          <div className="wheel_drawing_inner"></div>
-          <div className="wheel_drawing_outer"></div>
+          <LetterCircle letters={letters} onWordChange={handleWordChange} />
         </div>
         <div className="hint">
           <div>Hint</div>
           <div><img src="" alt="" /></div>
         </div>
+        {selectedWord}
       </div>
     </div>
   );
