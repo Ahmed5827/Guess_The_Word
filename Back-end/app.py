@@ -8,6 +8,7 @@ app = Flask(__name__)
 CORS(app, resources={r"*": {"origins": "*"}})
 swagger = Swagger(app)
 
+
 @app.route("/all_about_word/", methods=['GET'])
 def all_about_word():
     """
@@ -48,8 +49,9 @@ def all_about_word():
         raise Exception("Failed to retrieve random word after retries")
 
     def get_word_data(word):
-        URL_base2 = "https://api.dictionaryapi.dev/api/v2/entries/en/" + word
-        for _ in range(3):
+        URL_base2 = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
+
+        try:
             response = requests.get(URL_base2)
             if response.status_code == 200:
                 print("Dictionary request was successful!")
@@ -57,21 +59,24 @@ def all_about_word():
                 combined_definitions = []
                 for item in x[0]["meanings"]:
                     combined_definitions.extend(item.get("definitions", []))
-                return jsonify({"word": x[0]["word"], "meanings": combined_definitions})
+                return {"word": x[0]["word"], "meanings": combined_definitions}
             else:
-                print(f"Failed to retrieve data: {response.status_code}. Retrying...")
-                time.sleep(1)
-        raise Exception("Failed to retrieve dictionary data after retries")
+                print(f"Failed to retrieve data: {response.status_code}. No more retries.")
+        except requests.exceptions.RequestException as e:
+            print(f"Network error occurred: {e}. No more retries.")
+        
+        return None
 
-    word = get_random_word()
     while True:
+        word = get_random_word()
         data = get_word_data(word)
-        if data is None:
-            word = get_random_word()
-        else:
+        if data:
             t1 = time.time()
-            print(t1 - t0)
-            return data
+            print(f"Time taken: {t1 - t0} seconds")
+            return jsonify(data)
+        else:
+            print(f"No data found for word: {word}. Getting a new word...")
+
 
 @app.route("/", methods=['GET'])
 def home():
