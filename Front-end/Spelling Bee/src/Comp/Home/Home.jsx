@@ -40,12 +40,23 @@ const Home = () => {
 
   return (
     <div>
-      <h1>Word: {word}</h1>
-      <ul>
-        {meanings.map((meaning, index) => (
-          <li key={index}>{meaning.definition}</li>
-        ))}
-      </ul>
+      <div className="container">
+        <div><h2>Guess the Word</h2></div>
+        <div>
+          <div>Definition</div>
+          <div>{meanings[0]?.definition}</div>
+          <div></div>
+        </div>
+        <div className="giveup">
+          <div>Give up</div>
+          <div><img src="" alt="" /></div>
+        </div>
+        <div className="wheel"></div>
+        <div className="hint">
+          <div>Hint</div>
+          <div><img src="" alt="" /></div>
+        </div>
+      </div>
     </div>
   );
 };
