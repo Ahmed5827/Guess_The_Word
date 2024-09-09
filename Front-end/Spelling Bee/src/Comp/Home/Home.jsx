@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import getrandom_word from "../../services/Back-end-call"; // Make sure this import path is correct
+import "./Home.css"
+
 const Home = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,19 +41,22 @@ const Home = () => {
   const { word, meanings } = data;
 
   return (
-    <div>
-      <div className="container">
-        <div><h2>Guess the Word</h2></div>
-        <div>
-          <div>Definition</div>
-          <div>{meanings[0]?.definition}</div>
-          <div></div>
-        </div>
+    <div className="containerr">
+      <div><h2>Guess the Word</h2></div>
+      <div className="word_information">
+        <div>Definition</div>
+        <div>{meanings[0]?.definition}</div>
+        <div></div>
+      </div>
+      <div className="inputs">
         <div className="giveup">
           <div>Give up</div>
           <div><img src="" alt="" /></div>
         </div>
-        <div className="wheel"></div>
+        <div className="wheel">
+          <div className="wheel_drawing_inner"></div>
+          <div className="wheel_drawing_outer"></div>
+        </div>
         <div className="hint">
           <div>Hint</div>
           <div><img src="" alt="" /></div>
