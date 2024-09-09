@@ -67,7 +67,7 @@ const Home = () => {
           <div>Hint</div>
           <div><img src="" alt="" /></div>
         </div>
-        {selectedWord}
+        
       </div>
     </div>
   );
