@@ -2,25 +2,41 @@ import { useState, useEffect } from "react";
 import getrandom_word from "../../services/Back-end-call"; // Make sure this import path is correct
 import LetterCircle from "../Circle/LetterCircle";
 import "./Home.css"
+import toast, { Toaster } from "react-hot-toast";
+import { PacmanLoader } from "react-spinners";
 
 const Home = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [responseReceived, setResponseReceived] = useState(false); // New state to track if response is received
   const [selectedWord, setSelectedWord] = useState("");
-  const letters = ["A", "J", "N", "B", "T", "P", "C", "K", "U", "Y"];
 
   const handleWordChange = (newWord) => {
     setSelectedWord(newWord);
   };
+  const handleGiveUp = () => {
+    if (!confirm("Are you sure you want to give up ?")) {
+      toast.dismiss();
+      toast.success("Good job! Keep going", { duration: 4000 });
+      return;
+    }
+    setTimeout(() => {
+      location.reload();
+    }, 3000);
+  }
 
   useEffect(() => {
     console.log("selectedword: ", selectedWord)
+    if (selectedWord === "" || !data) {
+      return;
+    }
     if (data && selectedWord != "" && selectedWord === data?.word) {
-      alert("CCorrect Guess")
+      toast.dismiss();
+      toast.success("Correct Guess")
     }
     else {
-      alert("ti hak bhim fil anglais")
+      toast.dismiss();
+      toast.error("Ti hak bhim fil anglais")
     }
   }, [selectedWord])
 
@@ -50,35 +66,49 @@ const Home = () => {
     };
   }, [responseReceived]); // Dependency array includes responseReceived
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return (
+    <div className="loading">
+      <p>Loading...</p>
+      <div>
+        <PacmanLoader
+          color="#efd800"
+          margin={3}
+        />
+      </div>
+    </div>
+  );
 
   if (!data) return <p>No data found.</p>;
 
   // Destructure the response data
   const { word, meanings } = data;
+  const letters = [...new Set(word.split(""))].sort(() => Math.random() - 0.5)
 
   return (
-    <div className="containerr">
-      <div><h2>Guess the Word</h2></div>
-      <div className="word_information">
-        <div>Definition</div>
-        <div className="definition">{meanings[0]?.definition}</div>
-        <div></div>
+    <>
+      <Toaster />
+      <div className="containerr">
+        <div><h2>Guess the Word</h2></div>
+        <div className="word_information">
+          <div>Definition</div>
+          <div className="definition">{meanings[0]?.definition}</div>
+          <div></div>
+        </div>
+        <div className="inputs">
+          <div className="giveup" onClick={handleGiveUp}>
+            <div>Give up</div>
+            <div><img src="" alt="" /></div>
+          </div>
+          <div className="wheel">
+            <LetterCircle letters={[...new Set(word.split(""))]} onWordChange={handleWordChange} />
+          </div>
+          <div className="hint">
+            <div>Hint</div>
+            <div><img src="" alt="" /></div>
+          </div>
+        </div>
       </div>
-      <div className="inputs">
-        <div className="giveup">
-          <div>Give up</div>
-          <div><img src="" alt="" /></div>
-        </div>
-        <div className="wheel">
-          <LetterCircle letters={[...new Set(word.split(""))]} onWordChange={handleWordChange} />
-        </div>
-        <div className="hint">
-          <div>Hint</div>
-          <div><img src="" alt="" /></div>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 

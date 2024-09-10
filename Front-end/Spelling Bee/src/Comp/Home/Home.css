@@ -1,3 +1,20 @@
+.loading {
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    p {
+        font-size: 56px;
+        font-family: Georgia, 'Times New Roman', Times, serif;
+    }
+
+    div {
+        margin-left: 60px;
+    }
+}
+
 .containerr {
     margin: 0;
     padding: 0;
