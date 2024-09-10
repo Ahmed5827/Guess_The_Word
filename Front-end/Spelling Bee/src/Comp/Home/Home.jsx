@@ -16,8 +16,11 @@ const Home = () => {
 
   useEffect(() => {
     console.log("selectedword: ", selectedWord)
-    if (data && selectedWord === data?.word) {
+    if (data && selectedWord != "" && selectedWord === data?.word) {
       alert("CCorrect Guess")
+    }
+    else {
+      alert("ti hak bhim fil anglais")
     }
   }, [selectedWord])
 
@@ -68,7 +71,7 @@ const Home = () => {
           <div><img src="" alt="" /></div>
         </div>
         <div className="wheel">
-          <LetterCircle letters={letters} onWordChange={handleWordChange} />
+          <LetterCircle letters={[...new Set(word.split(""))]} onWordChange={handleWordChange} />
         </div>
         <div className="hint">
           <div>Hint</div>

@@ -56,7 +56,8 @@ function LetterCircle({ letters, onWordChange }) {
             }
         });
 
-        if (closestLetter && !selectedLetters.includes(closestLetter)) {
+        //if (closestLetter && !selectedLetters.includes(closestLetter)) {
+        if (closestLetter && selectedLetters[selectedLetters.length - 1] !== (closestLetter)) {
             setSelectedLetters((prev) => [...prev, closestLetter]);
 
             if (selectedLetters.length > 0) {
