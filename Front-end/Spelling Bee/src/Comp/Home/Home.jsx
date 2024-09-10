@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import getrandom_word from "../../services/Back-end-call"; // Make sure this import path is correct
-import "./Home.css"
 import LetterCircle from "../Circle/LetterCircle";
+import "./Home.css"
 
 const Home = () => {
   const [data, setData] = useState(null);
@@ -13,6 +13,13 @@ const Home = () => {
   const handleWordChange = (newWord) => {
     setSelectedWord(newWord);
   };
+
+  useEffect(() => {
+    console.log("selectedword: ", selectedWord)
+    if (data && selectedWord === data?.word) {
+      alert("CCorrect Guess")
+    }
+  }, [selectedWord])
 
   useEffect(() => {
     let isMounted = true; // Track if the component is mounted
@@ -52,7 +59,7 @@ const Home = () => {
       <div><h2>Guess the Word</h2></div>
       <div className="word_information">
         <div>Definition</div>
-        <div>{meanings[0]?.definition}</div>
+        <div className="definition">{meanings[0]?.definition}</div>
         <div></div>
       </div>
       <div className="inputs">
@@ -67,7 +74,6 @@ const Home = () => {
           <div>Hint</div>
           <div><img src="" alt="" /></div>
         </div>
-        {selectedWord}
       </div>
     </div>
   );

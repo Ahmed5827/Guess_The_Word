@@ -60,7 +60,6 @@ body {
     /* Allow pointer events to pass through */
     z-index: 2;
     /* Ensure lines are drawn on top */
-    border: 1px solid red;
     /* Temporary border to debug */
 }
 

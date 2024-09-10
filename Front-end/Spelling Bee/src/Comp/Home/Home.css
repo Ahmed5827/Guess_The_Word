@@ -18,15 +18,21 @@
         flex-direction: row;
         width: fit-content;
         justify-content: space-between;
-        align-items: center;
+        max-width: 60%;
         background-color: rgba(238, 238, 238, 0.541);
         border-radius: 1.5rem;
-
+        margin-bottom: 50px;
         padding: 10px 15px;
 
         div:first-child {
             font-size: 24px;
+            font-weight: bold;
             margin: 0 15px 0 15px;
+        }
+
+        .definition {
+            font-size: 20px;
+            font-family: 'Times New Roman', Times, serif;
         }
 
     }
@@ -37,20 +43,28 @@
         display: flex;
         flex-direction: row;
         margin: 50px;
+        align-items: center;
 
         .giveup {
             flex: 1;
-            background-color: rgba(238, 238, 238, 0.541);
+            background-color: rgba(206, 206, 206, 0.664);
             border-radius: .5rem;
             display: flex;
             flex-direction: row;
             align-items: center;
             padding: 15px;
             height: fit-content;
+            transition: 0.4s ease-in-out;
+            cursor: pointer;
+        }
+
+        .giveup:hover {
+            background-color: rgba(139, 139, 139, 0.664);
         }
 
         .wheel {
             flex: 2;
+            margin: 0 15px;
 
             .wheel_drawing_outer {
                 border: 1px solid black;
@@ -77,14 +91,19 @@
 
         .hint {
             flex: 1;
-            background-color: rgba(238, 238, 238, 0.541);
+            background-color: rgba(206, 206, 206, 0.664);
             border-radius: .5rem;
             display: flex;
             flex-direction: row;
             align-items: center;
             padding: 15px;
             height: fit-content;
+            transition: 0.4s ease-in-out;
+            cursor: pointer;
+        }
 
+        .hint:hover {
+            background-color: rgba(139, 139, 139, 0.664);
         }
     }
 }

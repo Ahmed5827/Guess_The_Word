@@ -12,11 +12,7 @@ function LetterCircle({ letters, onWordChange }) {
     const svgRef = useRef(null);
 
     // Notify parent of the selected word
-    useEffect(() => {
-        if (onWordChange) {
-            onWordChange(selectedLetters.join(""));
-        }
-    }, [selectedLetters, onWordChange]);
+
 
     const handleMouseDown = (e) => {
         if (e.button === 0) {
@@ -32,6 +28,8 @@ function LetterCircle({ letters, onWordChange }) {
         if (e.button === 0) {
             setIsMouseDown(false);
             setCurrentMousePos(null);
+            setLines([]);
+            onWordChange(selectedLetters.join(""))
         }
     };
 
@@ -83,7 +81,7 @@ function LetterCircle({ letters, onWordChange }) {
         }
     };
 
-    const circleDiameter = 400;
+    const circleDiameter = 300;
     const circleRadius = circleDiameter / 2;
     const letterRadius = circleRadius + 25;
 
@@ -138,7 +136,7 @@ function LetterCircle({ letters, onWordChange }) {
                                 position: 'absolute',
                                 left: `${x - 20}px`,
                                 top: `${y - 20}px`,
-                                transform: `rotate(${angle}deg)`,
+
                                 transformOrigin: 'center center',
                             }}
                             ref={(el) => (letterRefs.current[index] = el)}
