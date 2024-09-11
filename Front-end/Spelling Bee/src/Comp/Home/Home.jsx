@@ -50,6 +50,9 @@ const Home = () => {
     if (data && selectedWord != "" && selectedWord === data?.word) {
       toast.dismiss();
       toast.success("Correct Guess")
+      setTimeout(() => {
+        location.reload();
+      }, 3000);
     }
     else {
       toast.dismiss();
