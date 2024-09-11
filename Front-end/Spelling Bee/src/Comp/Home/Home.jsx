@@ -27,6 +27,7 @@ const Home = () => {
 
   useEffect(() => {
     console.log("selectedword: ", selectedWord)
+    console.log(data?.word)
     if (selectedWord === "" || !data) {
       return;
     }
