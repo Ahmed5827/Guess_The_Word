@@ -15,6 +15,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [responseReceived, setResponseReceived] = useState(false); // New state to track if response is received
   const [selectedWord, setSelectedWord] = useState("");
+  const [wordToHint, setWordToHint] = useState("");
   const [nbHintsLeft, setNbHintsLeft] = useState(2);
 
   const handleWordChange = (newWord) => {
@@ -56,7 +57,7 @@ const Home = () => {
     }
     else {
       toast.dismiss();
-      toast.error("Ti hak bhim fil anglais")
+      toast.error("Close! Try Again...")
     }
   }, [selectedWord])
 
@@ -70,6 +71,16 @@ const Home = () => {
           setData(response);
           setLoading(false);
           setResponseReceived(true); // Set flag to true after response is received
+          let indices = new Set();
+          const word = response.word;
+          while (indices.size < 3) {
+            indices.add(Math.floor(Math.random() * word.length));
+          }
+
+          let word_to_hint = word.split('').map((char, i) => {
+            return indices.has(i) ? char : '_';
+          }).join('');
+          setWordToHint(word_to_hint)
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -104,15 +115,6 @@ const Home = () => {
   const { word, meanings } = data;
   const letters = [...new Set(word.split(""))].sort(() => Math.random() - 0.5)
   const lightbulb = nbHintsLeft === 2 ? yellowBulb : nbHintsLeft === 1 ? yellowBulbIch : noBulb;
-  let indices = new Set();
-  while (indices.size < 3) {
-    indices.add(Math.floor(Math.random() * word.length));
-  }
-
-  let word_to_hint = word.split('').map((char, i) => {
-    return indices.has(i) ? char : '_';
-  }).join('');
-
   return (
     <>
       <Toaster />
@@ -129,7 +131,7 @@ const Home = () => {
               <div className="showHint">{meanings[1]?.definition}</div></div></> : <></>}
           {nbHintsLeft === 0 ? <>
             <div className="word_to_guess">
-              <div>Word to guess: <span>{word_to_hint}</span></div>
+              <div>Word to guess: <span>{wordToHint}</span></div>
               <div className="showHint"></div></div></> : <></>}
 
         </div>
@@ -139,7 +141,8 @@ const Home = () => {
             <div><img className="icon" src={giveup} height={"50px"} alt="" /></div>
           </div>
           <div className="wheel">
-            <LetterCircle letters={word.split("")} onWordChange={handleWordChange} />
+            {/*<LetterCircle letters={word.split("")} onWordChange={handleWordChange} />*/}
+            <LetterCircle letters={letters} onWordChange={handleWordChange} />
           </div>
           <div className={"hint " + (lightbulb == noBulb ? "disabled" : "")} onClick={handleUseHint}>
             <div>Use Hint ({nbHintsLeft} Hints left)</div>
