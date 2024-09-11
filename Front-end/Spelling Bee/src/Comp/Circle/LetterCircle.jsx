@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import PropTypes from 'prop-types'; // Import PropTypes
+import PropTypes from 'prop-types';
 import "./LetterCircle.css";
 
 function LetterCircle({ letters, onWordChange }) {
@@ -8,17 +8,14 @@ function LetterCircle({ letters, onWordChange }) {
     const [lines, setLines] = useState([]);
     const [currentMousePos, setCurrentMousePos] = useState(null);
     const circleRef = useRef(null);
-    const letterRefs = useRef([]);
+    const letterRefs = useRef([]); // Array of refs, one per letter
     const svgRef = useRef(null);
-
-    // Notify parent of the selected word
-
 
     const handleMouseDown = (e) => {
         if (e.button === 0) {
             e.preventDefault();
             setIsMouseDown(true);
-            setSelectedLetters([]);
+            setSelectedLetters([]); // Clear selected letters on new drag
             setLines([]);
             setCurrentMousePos(null);
         }
@@ -29,7 +26,8 @@ function LetterCircle({ letters, onWordChange }) {
             setIsMouseDown(false);
             setCurrentMousePos(null);
             setLines([]);
-            onWordChange(selectedLetters.join(""))
+            // Send the selected word to the parent component
+            onWordChange(selectedLetters.map(item => item.letter).join(""));
         }
     };
 
@@ -41,7 +39,9 @@ function LetterCircle({ letters, onWordChange }) {
         const mouseY = e.clientY - svgRect.top;
         setCurrentMousePos({ x: mouseX, y: mouseY });
 
-        let closestLetter = null;
+        let closestLetterIndex = null;
+
+        // Check if the mouse is within a letter's bounding box
         letterRefs.current.forEach((letterRef, index) => {
             const rect = letterRef.getBoundingClientRect();
             const isWithinLetter = (
@@ -52,32 +52,40 @@ function LetterCircle({ letters, onWordChange }) {
             );
 
             if (isWithinLetter) {
-                closestLetter = letters[index];
+                closestLetterIndex = index;
+                return; // Exit early when a letter is found
             }
         });
 
-        //if (closestLetter && !selectedLetters.includes(closestLetter)) {
-        if (closestLetter && selectedLetters[selectedLetters.length - 1] !== (closestLetter)) {
-            setSelectedLetters((prev) => [...prev, closestLetter]);
+        if (closestLetterIndex !== null) {
+            const closestLetter = letters[closestLetterIndex];
 
-            if (selectedLetters.length > 0) {
-                const prevLetterRect = letterRefs.current[letters.indexOf(selectedLetters[selectedLetters.length - 1])].getBoundingClientRect();
-                const currentLetterRect = letterRefs.current[letters.indexOf(closestLetter)].getBoundingClientRect();
-
-                const lineX1 = prevLetterRect.left + prevLetterRect.width / 2 - svgRect.left;
-                const lineY1 = prevLetterRect.top + prevLetterRect.height / 2 - svgRect.top;
-                const lineX2 = currentLetterRect.left + currentLetterRect.width / 2 - svgRect.left;
-                const lineY2 = currentLetterRect.top + currentLetterRect.height / 2 - svgRect.top;
-
-                setLines((prevLines) => [
-                    ...prevLines,
-                    {
-                        x1: lineX1,
-                        y1: lineY1,
-                        x2: lineX2,
-                        y2: lineY2,
-                    },
+            // Only add the letter if it hasn't been added consecutively
+            if (selectedLetters[selectedLetters.length - 1]?.index !== closestLetterIndex) {
+                setSelectedLetters((prev) => [
+                    ...prev,
+                    { letter: closestLetter, index: closestLetterIndex }
                 ]);
+
+                if (selectedLetters.length > 0) {
+                    const prevLetterRect = letterRefs.current[selectedLetters[selectedLetters.length - 1].index].getBoundingClientRect();
+                    const currentLetterRect = letterRefs.current[closestLetterIndex].getBoundingClientRect();
+
+                    const lineX1 = prevLetterRect.left + prevLetterRect.width / 2 - svgRect.left;
+                    const lineY1 = prevLetterRect.top + prevLetterRect.height / 2 - svgRect.top;
+                    const lineX2 = currentLetterRect.left + currentLetterRect.width / 2 - svgRect.left;
+                    const lineY2 = currentLetterRect.top + currentLetterRect.height / 2 - svgRect.top;
+
+                    setLines((prevLines) => [
+                        ...prevLines,
+                        {
+                            x1: lineX1,
+                            y1: lineY1,
+                            x2: lineX2,
+                            y2: lineY2,
+                        },
+                    ]);
+                }
             }
         }
     };
@@ -103,12 +111,12 @@ function LetterCircle({ letters, onWordChange }) {
                 {isMouseDown && selectedLetters.length > 0 && currentMousePos && (
                     <line
                         x1={
-                            letterRefs.current[letters.indexOf(selectedLetters[selectedLetters.length - 1])].getBoundingClientRect().left +
-                            letterRefs.current[letters.indexOf(selectedLetters[selectedLetters.length - 1])].getBoundingClientRect().width / 2 - svgRef.current.getBoundingClientRect().left
+                            letterRefs.current[selectedLetters[selectedLetters.length - 1].index].getBoundingClientRect().left +
+                            letterRefs.current[selectedLetters[selectedLetters.length - 1].index].getBoundingClientRect().width / 2 - svgRef.current.getBoundingClientRect().left
                         }
                         y1={
-                            letterRefs.current[letters.indexOf(selectedLetters[selectedLetters.length - 1])].getBoundingClientRect().top +
-                            letterRefs.current[letters.indexOf(selectedLetters[selectedLetters.length - 1])].getBoundingClientRect().height / 2 - svgRef.current.getBoundingClientRect().top
+                            letterRefs.current[selectedLetters[selectedLetters.length - 1].index].getBoundingClientRect().top +
+                            letterRefs.current[selectedLetters[selectedLetters.length - 1].index].getBoundingClientRect().height / 2 - svgRef.current.getBoundingClientRect().top
                         }
                         x2={currentMousePos.x}
                         y2={currentMousePos.y}
@@ -131,13 +139,12 @@ function LetterCircle({ letters, onWordChange }) {
 
                     return (
                         <div
-                            className={`letter ${selectedLetters.includes(letter) ? "selected" : ""}`}
+                            className={`letter ${selectedLetters.some(item => item.index === index) ? "selected" : ""}`}
                             key={index}
                             style={{
                                 position: 'absolute',
                                 left: `${x - 20}px`,
                                 top: `${y - 20}px`,
-
                                 transformOrigin: 'center center',
                             }}
                             ref={(el) => (letterRefs.current[index] = el)}
@@ -149,7 +156,7 @@ function LetterCircle({ letters, onWordChange }) {
             </div>
 
             <div className="word-display">
-                {selectedLetters.join("")}
+                {selectedLetters.map(item => item.letter).join("")}
             </div>
         </div>
     );
