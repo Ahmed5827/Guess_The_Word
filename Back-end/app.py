@@ -75,6 +75,7 @@ def all_about_word():
         if data:
             t1 = time.time()
             print(f"Time taken: {t1 - t0} seconds")
+            print(data)
             return jsonify(data)
         else:
             print(f"No data found for word: {word}. Getting a new word...")
