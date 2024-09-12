@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import PropTypes from 'prop-types';
 import "./LetterCircle.css";
 
@@ -31,14 +31,13 @@ function LetterCircle({ letters, onWordChange }) {
         }
     };
 
-  const handleMouseMove = (e) => {
-    if (!isMouseDown) return;
+    const handleMouseMove = (e) => {
+        if (!isMouseDown) return;
 
-    const svgRect = svgRef.current.getBoundingClientRect();
-    const containerRect = redSquareRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - containerRect.left;
-    const mouseY = e.clientY - containerRect.top;
-    setCurrentMousePos({ x: mouseX, y: mouseY });
+        const svgRect = svgRef.current.getBoundingClientRect();
+        const mouseX = e.clientX - svgRect.left;
+        const mouseY = e.clientY - svgRect.top;
+        setCurrentMousePos({ x: mouseX, y: mouseY });
 
         let closestLetterIndex = null;
 
@@ -93,24 +92,7 @@ function LetterCircle({ letters, onWordChange }) {
 
     const circleDiameter = 300;
     const circleRadius = circleDiameter / 2;
-    const letterRadius = circleRadius - 26; // Adjust as needed
-
-    letterRefs.current.forEach((letterRef, index) => {
-      const angle = (index * 360) / letters.length;
-      const x = circleRadius + letterRadius * Math.cos((angle * Math.PI) / 180);
-      const y = circleRadius + letterRadius * Math.sin((angle * Math.PI) / 180);
-
-      if (letterRef) {
-        letterRef.style.left = `${x - 72}px`;
-        letterRef.style.top = `${y - 73}px`;
-        letterRef.style.transform = `rotate(${angle}deg)`;
-      }
-    });
-  };
-
-  useEffect(() => {
-    updateLetterPositions();
-  }, [letters]);
+    const letterRadius = circleRadius + 25;
 
     return (
         <div className="container" onMouseUp={handleMouseUp}>
@@ -182,8 +164,8 @@ function LetterCircle({ letters, onWordChange }) {
 
 // Add PropTypes for validation
 LetterCircle.propTypes = {
-  letters: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onWordChange: PropTypes.func.isRequired,
+    letters: PropTypes.arrayOf(PropTypes.string).isRequired,
+    onWordChange: PropTypes.func.isRequired,
 };
 
 export default LetterCircle;
