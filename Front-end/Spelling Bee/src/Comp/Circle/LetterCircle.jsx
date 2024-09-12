@@ -1,50 +1,35 @@
-import { useState, useRef, useEffect, useLayoutEffect } from "react";
-import PropTypes from "prop-types"; // Import PropTypes
+import { useState, useRef, useEffect } from "react";
+import PropTypes from 'prop-types';
 import "./LetterCircle.css";
 
 function LetterCircle({ letters, onWordChange }) {
-  const [selectedLetters, setSelectedLetters] = useState([]);
-  const [isMouseDown, setIsMouseDown] = useState(false);
-  const [lines, setLines] = useState([]);
-  const [currentMousePos, setCurrentMousePos] = useState(null);
-  const circleRef = useRef(null);
-  const letterRefs = useRef([]);
-  const svgRef = useRef(null);
-  const redSquareRef = useRef(null);
+    const [selectedLetters, setSelectedLetters] = useState([]);
+    const [isMouseDown, setIsMouseDown] = useState(false);
+    const [lines, setLines] = useState([]);
+    const [currentMousePos, setCurrentMousePos] = useState(null);
+    const circleRef = useRef(null);
+    const letterRefs = useRef([]); // Array of refs, one per letter
+    const svgRef = useRef(null);
 
-  useLayoutEffect(() => {
-    const handleResize = () => {
-      if (circleRef.current) {
-        updateLetterPositions();
-      }
+    const handleMouseDown = (e) => {
+        if (e.button === 0) {
+            e.preventDefault();
+            setIsMouseDown(true);
+            setSelectedLetters([]); // Clear selected letters on new drag
+            setLines([]);
+            setCurrentMousePos(null);
+        }
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [letters]);
 
-  // Notify parent of the selected word
-  useEffect(() => {
-    if (onWordChange) {
-      onWordChange(selectedLetters.join(""));
-    }
-  }, [selectedLetters, onWordChange]);
-
-  const handleMouseDown = (e) => {
-    if (e.button === 0) {
-      e.preventDefault();
-      setIsMouseDown(true);
-      setSelectedLetters([]);
-      setLines([]);
-      setCurrentMousePos(null);
-    }
-  };
-
-  const handleMouseUp = (e) => {
-    if (e.button === 0) {
-      setIsMouseDown(false);
-      setCurrentMousePos(null);
-    }
-  };
+    const handleMouseUp = (e) => {
+        if (e.button === 0) {
+            setIsMouseDown(false);
+            setCurrentMousePos(null);
+            setLines([]);
+            // Send the selected word to the parent component
+            onWordChange(selectedLetters.map(item => item.letter).join(""));
+        }
+    };
 
   const handleMouseMove = (e) => {
     if (!isMouseDown) return;
@@ -55,64 +40,58 @@ function LetterCircle({ letters, onWordChange }) {
     const mouseY = e.clientY - containerRect.top;
     setCurrentMousePos({ x: mouseX, y: mouseY });
 
-    let closestLetter = null;
-    letterRefs.current.forEach((letterRef, index) => {
-      const rect = letterRef.getBoundingClientRect();
-      const isWithinLetter =
-        e.clientX >= rect.left &&
-        e.clientX <= rect.right &&
-        e.clientY >= rect.top &&
-        e.clientY <= rect.bottom;
+        let closestLetterIndex = null;
 
-      if (isWithinLetter) {
-        closestLetter = letters[index];
-      }
-    });
+        // Check if the mouse is within a letter's bounding box
+        letterRefs.current.forEach((letterRef, index) => {
+            const rect = letterRef.getBoundingClientRect();
+            const isWithinLetter = (
+                e.clientX >= rect.left &&
+                e.clientX <= rect.right &&
+                e.clientY >= rect.top &&
+                e.clientY <= rect.bottom
+            );
 
-    if (closestLetter && !selectedLetters.includes(closestLetter)) {
-      setSelectedLetters((prev) => [...prev, closestLetter]);
+            if (isWithinLetter) {
+                closestLetterIndex = index;
+                return; // Exit early when a letter is found
+            }
+        });
 
-      if (selectedLetters.length > 0) {
-        const prevLetterRect =
-          letterRefs.current[
-            letters.indexOf(selectedLetters[selectedLetters.length - 1])
-          ].getBoundingClientRect();
-        const currentLetterRect =
-          letterRefs.current[
-            letters.indexOf(closestLetter)
-          ].getBoundingClientRect();
+        if (closestLetterIndex !== null) {
+            const closestLetter = letters[closestLetterIndex];
 
-        const lineX1 =
-          prevLetterRect.left + prevLetterRect.width / 2 - containerRect.left;
-        const lineY1 =
-          prevLetterRect.top + prevLetterRect.height / 2 - containerRect.top;
-        const lineX2 =
-          currentLetterRect.left +
-          currentLetterRect.width / 2 -
-          containerRect.left;
-        const lineY2 =
-          currentLetterRect.top +
-          currentLetterRect.height / 2 -
-          containerRect.top;
+            // Only add the letter if it hasn't been added consecutively
+            if (selectedLetters[selectedLetters.length - 1]?.index !== closestLetterIndex) {
+                setSelectedLetters((prev) => [
+                    ...prev,
+                    { letter: closestLetter, index: closestLetterIndex }
+                ]);
 
-        setLines((prevLines) => [
-          ...prevLines,
-          {
-            x1: lineX1,
-            y1: lineY1,
-            x2: lineX2,
-            y2: lineY2,
-          },
-        ]);
-      }
-    }
-  };
+                if (selectedLetters.length > 0) {
+                    const prevLetterRect = letterRefs.current[selectedLetters[selectedLetters.length - 1].index].getBoundingClientRect();
+                    const currentLetterRect = letterRefs.current[closestLetterIndex].getBoundingClientRect();
 
-  const updateLetterPositions = () => {
-    if (!redSquareRef.current) return;
+                    const lineX1 = prevLetterRect.left + prevLetterRect.width / 2 - svgRect.left;
+                    const lineY1 = prevLetterRect.top + prevLetterRect.height / 2 - svgRect.top;
+                    const lineX2 = currentLetterRect.left + currentLetterRect.width / 2 - svgRect.left;
+                    const lineY2 = currentLetterRect.top + currentLetterRect.height / 2 - svgRect.top;
 
-    const containerRect = redSquareRef.current.getBoundingClientRect();
-    const circleDiameter = containerRect.width;
+                    setLines((prevLines) => [
+                        ...prevLines,
+                        {
+                            x1: lineX1,
+                            y1: lineY1,
+                            x2: lineX2,
+                            y2: lineY2,
+                        },
+                    ]);
+                }
+            }
+        }
+    };
+
+    const circleDiameter = 300;
     const circleRadius = circleDiameter / 2;
     const letterRadius = circleRadius - 26; // Adjust as needed
 
@@ -133,76 +112,72 @@ function LetterCircle({ letters, onWordChange }) {
     updateLetterPositions();
   }, [letters]);
 
-  return (
-    <div className="container" onMouseUp={handleMouseUp}>
-      <div ref={redSquareRef} className="red-square">
-        <svg ref={svgRef} className="svg-overlay">
-          {lines.map((line, index) => (
-            <line
-              key={index}
-              x1={line.x1}
-              y1={line.y1}
-              x2={line.x2}
-              y2={line.y2}
-              stroke="black"
-              strokeWidth="2"
-            />
-          ))}
-          {isMouseDown && selectedLetters.length > 0 && currentMousePos && (
-            <line
-              x1={
-                letterRefs.current[
-                  letters.indexOf(selectedLetters[selectedLetters.length - 1])
-                ].getBoundingClientRect().left +
-                letterRefs.current[
-                  letters.indexOf(selectedLetters[selectedLetters.length - 1])
-                ].getBoundingClientRect().width /
-                  2 -
-                redSquareRef.current.getBoundingClientRect().left
-              }
-              y1={
-                letterRefs.current[
-                  letters.indexOf(selectedLetters[selectedLetters.length - 1])
-                ].getBoundingClientRect().top +
-                letterRefs.current[
-                  letters.indexOf(selectedLetters[selectedLetters.length - 1])
-                ].getBoundingClientRect().height /
-                  2 -
-                redSquareRef.current.getBoundingClientRect().top
-              }
-              x2={currentMousePos.x}
-              y2={currentMousePos.y}
-              stroke="black"
-              strokeWidth="2"
-            />
-          )}
-        </svg>
+    return (
+        <div className="container" onMouseUp={handleMouseUp}>
+            <svg ref={svgRef} className="svg-overlay">
+                {lines.map((line, index) => (
+                    <line
+                        key={index}
+                        x1={line.x1}
+                        y1={line.y1}
+                        x2={line.x2}
+                        y2={line.y2}
+                        stroke="black"
+                        strokeWidth="2"
+                    />
+                ))}
+                {isMouseDown && selectedLetters.length > 0 && currentMousePos && (
+                    <line
+                        x1={
+                            letterRefs.current[selectedLetters[selectedLetters.length - 1].index].getBoundingClientRect().left +
+                            letterRefs.current[selectedLetters[selectedLetters.length - 1].index].getBoundingClientRect().width / 2 - svgRef.current.getBoundingClientRect().left
+                        }
+                        y1={
+                            letterRefs.current[selectedLetters[selectedLetters.length - 1].index].getBoundingClientRect().top +
+                            letterRefs.current[selectedLetters[selectedLetters.length - 1].index].getBoundingClientRect().height / 2 - svgRef.current.getBoundingClientRect().top
+                        }
+                        x2={currentMousePos.x}
+                        y2={currentMousePos.y}
+                        stroke="black"
+                        strokeWidth="2"
+                    />
+                )}
+            </svg>
 
-        <div
-          ref={circleRef}
-          className="circle"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-        >
-          {letters.map((letter, index) => {
-            return (
-              <div
-                className={`letter ${
-                  selectedLetters.includes(letter) ? "selected" : ""
-                }`}
-                key={index}
-                ref={(el) => (letterRefs.current[index] = el)}
-              >
-                {letter}
-              </div>
-            );
-          })}
+            <div
+                ref={circleRef}
+                className="circle"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+            >
+                {letters.map((letter, index) => {
+                    const angle = (index * 360) / letters.length;
+                    const x = circleRadius + letterRadius * Math.cos((angle * Math.PI) / 180);
+                    const y = circleRadius + letterRadius * Math.sin((angle * Math.PI) / 180);
+
+                    return (
+                        <div
+                            className={`letter ${selectedLetters.some(item => item.index === index) ? "selected" : ""}`}
+                            key={index}
+                            style={{
+                                position: 'absolute',
+                                left: `${x - 20}px`,
+                                top: `${y - 20}px`,
+                                transformOrigin: 'center center',
+                            }}
+                            ref={(el) => (letterRefs.current[index] = el)}
+                        >
+                            {letter}
+                        </div>
+                    );
+                })}
+            </div>
+
+            <div className="word-display">
+                {selectedLetters.map(item => item.letter).join("")}
+            </div>
         </div>
-
-        <div className="word-display">{selectedLetters.join("")}</div>
-      </div>
-    </div>
-  );
+    );
 }
 
 // Add PropTypes for validation
