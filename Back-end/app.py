@@ -44,7 +44,8 @@ def all_about_word():
                 print("Random word request was successful!")
                 return response.json()[0]
             else:
-                print(f"Failed to retrieve word: {response.status_code}. Retrying...")
+                print(f"Failed to retrieve word: {
+                      response.status_code}. Retrying...")
                 time.sleep(1)
         raise Exception("Failed to retrieve random word after retries")
 
@@ -61,10 +62,11 @@ def all_about_word():
                     combined_definitions.extend(item.get("definitions", []))
                 return {"word": x[0]["word"], "meanings": combined_definitions}
             else:
-                print(f"Failed to retrieve data: {response.status_code}. No more retries.")
+                print(f"Failed to retrieve data: {
+                      response.status_code}. No more retries.")
         except requests.exceptions.RequestException as e:
             print(f"Network error occurred: {e}. No more retries.")
-        
+
         return None
 
     while True:
@@ -94,6 +96,7 @@ def home():
               example: "hello world from Flask"
     """
     return "hello world from Flask"
+
 
 if __name__ == '__main__':
     app.run(debug=True)

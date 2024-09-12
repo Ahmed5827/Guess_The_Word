@@ -81,6 +81,8 @@ const Home = () => {
             return indices.has(i) ? char : '_';
           }).join('');
           setWordToHint(word_to_hint)
+          const meanings = response.meanings;
+          setNbHintsLeft(Math.min(3, meanings.length))
         }
       } catch (error) {
         console.error('Error fetching data:', error);
