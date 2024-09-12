@@ -115,7 +115,7 @@ const Home = () => {
   const { word, meanings } = data;
   const letters = [...new Set(word.split(""))].sort(() => Math.random() - 0.5);
   const lightbulb =
-    nbHintsLeft === 2 ? yellowBulb : nbHintsLeft === 1 ? yellowBulbIch : noBulb;
+    nbHintsLeft > 2 ? yellowBulb : nbHintsLeft === 1 ? yellowBulbIch : noBulb;
   return (
     <>
       <Toaster />
