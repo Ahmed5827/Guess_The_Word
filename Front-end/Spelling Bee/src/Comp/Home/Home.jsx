@@ -4,7 +4,7 @@ import LetterCircle from "../Circle/LetterCircle";
 import "./Home.css";
 import toast, { Toaster } from "react-hot-toast";
 import { PacmanLoader } from "react-spinners";
-
+import { useConfirm } from "material-ui-confirm";
 import yellowBulb from "/yellow lightbulb.svg";
 import yellowBulbIch from "/yellow-ich lightbulb.svg";
 import noBulb from "/no lightbulb.svg";
@@ -18,20 +18,22 @@ const Home = () => {
   const [wordToHint, setWordToHint] = useState("");
   const [nbHintsLeft, setNbHintsLeft] = useState(2);
 
+  const confirm = useConfirm()
   const handleWordChange = (newWord) => {
     setSelectedWord(newWord);
   };
   const handleGiveUp = () => {
-    if (!confirm("Are you sure you want to give up ?")) {
+    confirm({ description: "Are you sure you want to give up ?" }).then(() => {
       toast.dismiss();
-      toast.success("Good job! Keep going", { duration: 4000 });
-      return;
-    }
-    toast.dismiss();
-    toast.error("Better luck next time!");
-    setTimeout(() => {
-      location.reload();
-    }, 3000);
+      toast.error("Better luck next time!");
+      setTimeout(() => {
+        location.reload();
+      }, 3000);
+
+    }).catch(() => {
+      toast.dismiss();
+      toast.success("Good job keep going!");
+    })
   };
 
   const handleUseHint = () => {
