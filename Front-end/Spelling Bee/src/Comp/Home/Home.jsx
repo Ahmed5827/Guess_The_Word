@@ -77,13 +77,12 @@ const Home = () => {
             indices.add(Math.floor(Math.random() * word.length));
           }
 
-          let word_to_hint = word
-            .split("")
-            .map((char, i) => {
-              return indices.has(i) ? char : "_";
-            })
-            .join("");
-          setWordToHint(word_to_hint);
+          let word_to_hint = word.split('').map((char, i) => {
+            return indices.has(i) ? char : '_';
+          }).join('');
+          setWordToHint(word_to_hint)
+          const meanings = response.meanings;
+          setNbHintsLeft(Math.min(3, meanings.length))
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -116,7 +115,7 @@ const Home = () => {
   const { word, meanings } = data;
   const letters = [...new Set(word.split(""))].sort(() => Math.random() - 0.5);
   const lightbulb =
-    nbHintsLeft === 2 ? yellowBulb : nbHintsLeft === 1 ? yellowBulbIch : noBulb;
+    nbHintsLeft > 1 ? yellowBulb : nbHintsLeft === 1 ? yellowBulbIch : noBulb;
   return (
     <>
       <Toaster />
